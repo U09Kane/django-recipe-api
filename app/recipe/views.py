@@ -32,8 +32,3 @@ class IngredientViewSet(GenericViewSet, ListModelMixin):
     def get_queryset(self):
         """return objects for current authenticated user"""
         return self.queryset.filter(user=self.request.user).order_by('-name')
-
-
-
-
-

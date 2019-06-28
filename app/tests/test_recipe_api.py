@@ -229,12 +229,12 @@ class RecipeImageUploadTest(TestCase):
 
         self.recipe.refresh_from_db()
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertIn(img, res.data)
+        self.assertIn('image', res.data)
         self.assertTrue(os.path.exists(self.recipe.image.path))
 
     def test_upload_image_bad_request(self):
         """test response for uploading invalid image"""
         url = image_upload_url(self.recipe.id)
-        res = self.client.post(url, {'image': 5})
+        res = self.client.post(url, {'image': 5}, format='multipart')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

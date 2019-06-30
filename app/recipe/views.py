@@ -43,13 +43,28 @@ class RecipeViewSet(ModelViewSet):
     """Manage recipes within the database"""
     serializer_class = serializers.RecipeSerializer
     queryset = Recipe.objects.all()
-
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    def _params_to_ints(self, query_str):
+        """convert list-like string of ints to list (of ints)"""
+        return [int(i) for i in query_str.split(',')]
+
     def get_queryset(self):
         """get recipes for authenticated user"""
-        return self.queryset.filter(user=self.request.user)
+        tags = self.request.query_params.get('tags')
+        ingredients = self.request.query_params.get('ingredients')
+        queryset = self.queryset
+
+        if tags:
+            tag_ids = self._params_to_ints(tags)
+            queryset = queryset.filter(tags__id__in=tag_ids)
+
+        if ingredients:
+            ingred_ids = self._params_to_ints(ingredients)
+            queryset = queryset.filter(ingredients__id__in=ingred_ids)
+
+        return queryset.filter(user=self.request.user)
 
     def get_serializer_class(self):
         """return serializer class"""
